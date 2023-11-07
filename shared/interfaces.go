@@ -18,14 +18,19 @@ type SubChannel interface {
 	Registrar
 }
 
+// Handlers is the map from method names to handlers.
+type Handlers map[string]interface{}
+
 // Registrar is the base interface for registering handlers on either the base
 // Channel or the SubChannel
 type Registrar interface {
 	// ServiceName returns the service name that this Registrar is for.
 	ServiceName() string
 
-	// Register registers a handler for ServiceName and the given method.
-	Register(h Handler, methodName string)
+	// Register registers the specified methods specified as a map from method name to the
+	// JSON handler function. The handler functions should have the following signature:
+	// func(context.Context, *ArgType)(*ResType, error)
+	Register(funcs Handlers, onError func(context.Context, error)) error
 
 	// // Logger returns the logger for this Registrar.
 	// Logger() Logger
@@ -63,9 +68,9 @@ type CallOptions struct {
 	RawHeaders []byte // FIXME
 	Headers    any    // FIXME
 
-	// Format is arg scheme used for this call, sent in the "as" header.
-	// This header is only set if the Format is set.
-	Format Format
+	// // Format is arg scheme used for this call, sent in the "as" header.
+	// // This header is only set if the Format is set.
+	// Format Format
 
 	// // ShardKey determines where this call request belongs, used with ringpop applications.
 	// ShardKey string

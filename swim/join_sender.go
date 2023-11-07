@@ -453,7 +453,7 @@ func sendJoinRequest(node *Node, target string, timeout time.Duration) (*joinRes
 	// make request
 	errC := make(chan error, 1)
 	go func() {
-		errC <- peer.Call(ctx, peer, node.service, "/protocol/join", nil, req, res)
+		errC <- peer.Call(ctx, node.service, "/protocol/join", nil, req, res)
 	}()
 
 	// wait for result or timeout

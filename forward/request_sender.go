@@ -162,7 +162,7 @@ func (s *requestSender) MakeCall(ctx context.Context, res *[]byte, fwdError *err
 
 		err := peer.RawCall(ctx, s.service, s.endpoint, &shared.CallOptions{
 			RawHeaders: s.headers,
-			Format:     s.format,
+			// Format:     s.format, // FIXME
 		}, s.request, res)
 
 		if err != nil {

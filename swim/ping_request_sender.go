@@ -100,7 +100,7 @@ func (p *pingRequestSender) MakeCall(ctx shared.ContextWithHeaders, res *pingRes
 		}
 
 		peer := p.node.channel.Peers().GetOrAdd(p.peer)
-		err := peer.Call(ctx, peer, p.node.service, "/protocol/ping-req", nil, req, &res)
+		err := peer.Call(ctx, p.node.service, "/protocol/ping-req", nil, req, &res)
 		if err != nil {
 			bumpPiggybackCounters()
 			errC <- err

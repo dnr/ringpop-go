@@ -26,7 +26,6 @@ import (
 	"context"
 
 	"github.com/temporalio/ringpop-go/shared"
-	"github.com/temporalio/ringpop-go/tunnel"
 	log "github.com/uber-common/bark"
 )
 
@@ -80,7 +79,7 @@ func (n *Node) registerHandlers() error {
 		"/admin/reap":                n.reapFaultyMembersHandler,
 	}
 
-	return tunnel.JsonRegister(n.channel, handlers, n.errorHandler)
+	return n.channel.Register(handlers, n.errorHandler)
 }
 
 func (n *Node) joinHandler(ctx shared.ContextWithHeaders, req *joinRequest) (*joinResponse, error) {

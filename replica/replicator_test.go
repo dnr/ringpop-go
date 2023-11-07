@@ -122,7 +122,7 @@ func (s *ReplicatorTestSuite) RegisterHandler(ch shared.SubChannel, address stri
 		},
 	}
 
-	s.Require().NoError(tunnel.JsonRegister(ch, handler, func(ctx context.Context, err error) {
+	s.Require().NoError(ch.Register(handler, func(ctx context.Context, err error) {
 		s.Fail("calls shouldn't fail")
 	}))
 }
