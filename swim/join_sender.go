@@ -27,11 +27,11 @@ import (
 	"sync"
 	"time"
 
-	log "github.com/uber-common/bark"
 	"github.com/temporalio/ringpop-go/logging"
 	"github.com/temporalio/ringpop-go/shared"
+	"github.com/temporalio/ringpop-go/tunnel"
 	"github.com/temporalio/ringpop-go/util"
-	"github.com/temporalio/tchannel-go/json"
+	log "github.com/uber-common/bark"
 )
 
 const (
@@ -454,7 +454,7 @@ func sendJoinRequest(node *Node, target string, timeout time.Duration) (*joinRes
 	// make request
 	errC := make(chan error, 1)
 	go func() {
-		errC <- json.CallPeer(ctx, peer, node.service, "/protocol/join", req, res)
+		errC <- tunnel.CallPeer(ctx, peer, node.service, "/protocol/join", req, res)
 	}()
 
 	// wait for result or timeout

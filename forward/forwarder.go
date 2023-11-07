@@ -26,13 +26,12 @@ import (
 	"sync"
 	"time"
 
-	log "github.com/uber-common/bark"
 	"github.com/temporalio/ringpop-go/events"
 	"github.com/temporalio/ringpop-go/logging"
 	"github.com/temporalio/ringpop-go/shared"
 	"github.com/temporalio/ringpop-go/util"
-	"github.com/temporalio/tchannel-go"
 	"github.com/temporalio/tchannel-go/thrift"
+	log "github.com/uber-common/bark"
 )
 
 // A Sender is used to route the request to the proper destination,
@@ -145,7 +144,7 @@ func (f *Forwarder) decrementInflight() {
 // Keys are used by the sender to lookup the destination on retry. If you have multiple keys
 // and their destinations diverge on a retry then the call is aborted.
 func (f *Forwarder) ForwardRequest(request []byte, destination, service, endpoint string,
-	keys []string, format tchannel.Format, opts *Options) ([]byte, error) {
+	keys []string, format shared.Format, opts *Options) ([]byte, error) {
 
 	f.EmitEvent(RequestForwardedEvent{})
 

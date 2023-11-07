@@ -27,13 +27,13 @@ import (
 
 	"golang.org/x/net/context"
 
-	log "github.com/uber-common/bark"
 	"github.com/temporalio/ringpop-go/events"
 	"github.com/temporalio/ringpop-go/logging"
 	"github.com/temporalio/ringpop-go/shared"
 	"github.com/temporalio/tchannel-go"
 	"github.com/temporalio/tchannel-go/raw"
 	"github.com/temporalio/tchannel-go/thrift"
+	log "github.com/uber-common/bark"
 )
 
 // errDestinationsDiverged is an error that is returned from AttemptRetry
@@ -51,7 +51,7 @@ type requestSender struct {
 	destination       string
 	service, endpoint string
 	keys              []string
-	format            tchannel.Format
+	format            shared.Format
 
 	destinations []string // destinations the request has been routed to ?
 
@@ -70,7 +70,7 @@ type requestSender struct {
 
 // NewRequestSender returns a new request sender that can be used to forward a request to its destination
 func newRequestSender(sender Sender, emitter events.EventEmitter, channel shared.SubChannel, request []byte, keys []string,
-	destination, service, endpoint string, format tchannel.Format, opts *Options) *requestSender {
+	destination, service, endpoint string, format shared.Format, opts *Options) *requestSender {
 
 	logger := logging.Logger("sender")
 	if address, err := sender.WhoAmI(); err != nil {
@@ -99,13 +99,13 @@ func newRequestSender(sender Sender, emitter events.EventEmitter, channel shared
 
 func (s *requestSender) Send() (res []byte, err error) {
 	var cancel context.CancelFunc
-	var ctx thrift.Context
+	var ctx shared.ContextWithHeaders
 	if s.ctx == nil {
 		ctx, cancel = shared.NewTChannelContext(s.timeout)
 	} else {
 		var c context.Context
 		c, cancel = context.WithTimeout(s.ctx, s.timeout)
-		ctx = tchannel.Wrap(c)
+		ctx = shared.WrapContext(c)
 	}
 	defer cancel()
 
@@ -164,7 +164,7 @@ func (s *requestSender) MakeCall(ctx context.Context, res *[]byte, fwdError *err
 
 		peer := s.channel.Peers().GetOrAdd(s.destination)
 
-		call, err := peer.BeginCall(ctx, s.service, s.endpoint, &tchannel.CallOptions{
+		call, err := peer.BeginCall(ctx, s.service, s.endpoint, &shared.CallOptions{
 			Format: s.format,
 		})
 		if err != nil {
@@ -175,7 +175,7 @@ func (s *requestSender) MakeCall(ctx context.Context, res *[]byte, fwdError *err
 
 		var arg3 []byte
 		headers := s.headers
-		if s.format == tchannel.Thrift {
+		if s.format == shared.Thrift {
 			if headers == nil {
 				headers = []byte{0, 0}
 			}

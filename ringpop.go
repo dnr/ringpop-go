@@ -42,8 +42,8 @@ import (
 	athrift "github.com/apache/thrift/lib/go/thrift"
 	"github.com/benbjohnson/clock"
 	"github.com/dgryski/go-farm"
-	log "github.com/uber-common/bark"
 	"github.com/temporalio/tchannel-go"
+	log "github.com/uber-common/bark"
 )
 
 // Interface specifies the public facing methods a user of ringpop is able to
@@ -422,11 +422,12 @@ func (rp *Ringpop) Bootstrap(bootstrapOpts *swim.BootstrapOptions) ([]string, er
 		}
 	}
 
-	// We shouldn't try to bootstrap if the channel is not listening
-	if rp.channel.State() != tchannel.ChannelListening {
-		rp.logger.WithField("channelState", rp.channel.State()).Error(ErrChannelNotListening.Error())
-		return nil, ErrChannelNotListening
-	}
+	// FIXME
+	// // We shouldn't try to bootstrap if the channel is not listening
+	// if rp.channel.State() != tchannel.ChannelListening {
+	// 	rp.logger.WithField("channelState", rp.channel.State()).Error(ErrChannelNotListening.Error())
+	// 	return nil, ErrChannelNotListening
+	// }
 
 	joined, err := rp.node.Bootstrap(bootstrapOpts)
 	if err != nil {
@@ -772,7 +773,7 @@ func (rp *Ringpop) getStatKey(key string) string {
 // is taken care of internally by the method, and, if no error has occured, the
 // response is written in the provided response field.
 func (rp *Ringpop) HandleOrForward(key string, request []byte, response *[]byte, service, endpoint string,
-	format tchannel.Format, opts *forward.Options) (bool, error) {
+	format shared.Format, opts *forward.Options) (bool, error) {
 
 	if !rp.Ready() {
 		return false, ErrNotBootstrapped
@@ -800,7 +801,7 @@ func (rp *Ringpop) HandleOrForward(key string, request []byte, response *[]byte,
 
 // Forward forwards the request to given destination host and returns the response.
 func (rp *Ringpop) Forward(dest string, keys []string, request []byte, service, endpoint string,
-	format tchannel.Format, opts *forward.Options) ([]byte, error) {
+	format shared.Format, opts *forward.Options) ([]byte, error) {
 
 	return rp.forwarder.ForwardRequest(request, dest, service, endpoint, keys, format, opts)
 }

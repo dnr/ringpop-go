@@ -25,10 +25,10 @@ import (
 	"sync"
 	"time"
 
-	log "github.com/uber-common/bark"
 	"github.com/temporalio/ringpop-go/logging"
 	"github.com/temporalio/ringpop-go/shared"
-	"github.com/temporalio/tchannel-go/json"
+	"github.com/temporalio/ringpop-go/tunnel"
+	log "github.com/uber-common/bark"
 )
 
 // A PingRequest is used to make a ping request to a remote node
@@ -85,7 +85,7 @@ func (p *pingRequestSender) SendPingRequest() (*pingResponse, error) {
 
 }
 
-func (p *pingRequestSender) MakeCall(ctx json.Context, res *pingResponse) <-chan error {
+func (p *pingRequestSender) MakeCall(ctx shared.ContextWithHeaders, res *pingResponse) <-chan error {
 	errC := make(chan error, 1)
 
 	go func() {
@@ -101,7 +101,7 @@ func (p *pingRequestSender) MakeCall(ctx json.Context, res *pingResponse) <-chan
 		}
 
 		peer := p.node.channel.Peers().GetOrAdd(p.peer)
-		err := json.CallPeer(ctx, peer, p.node.service, "/protocol/ping-req", req, &res)
+		err := tunnel.CallPeer(ctx, peer, p.node.service, "/protocol/ping-req", req, &res)
 		if err != nil {
 			bumpPiggybackCounters()
 			errC <- err
@@ -139,8 +139,9 @@ func indirectPing(n *Node, target string, amount int, timeout time.Duration) (re
 
 // sendPingRequests sends ping requests to the target address and returns a channel
 // containing the responses. Responses can be one of type:
-//  (1) error:          if the call to peer failed
-//  (2) PingResponse:   if the peer performed the ping request
+//
+//	(1) error:          if the call to peer failed
+//	(2) PingResponse:   if the peer performed the ping request
 func sendPingRequests(node *Node, target string, size int, timeout time.Duration) <-chan interface{} {
 	var peerAddresses []string
 	peers := node.memberlist.RandomPingableMembers(size, map[string]bool{target: true})

@@ -23,8 +23,9 @@ package swim
 import (
 	"errors"
 
-	log "github.com/uber-common/bark"
+	"github.com/temporalio/ringpop-go/tunnel"
 	"github.com/temporalio/tchannel-go/json"
+	log "github.com/uber-common/bark"
 	"golang.org/x/net/context"
 )
 
@@ -78,7 +79,7 @@ func (n *Node) registerHandlers() error {
 		"/admin/reap":                n.reapFaultyMembersHandler,
 	}
 
-	return json.Register(n.channel, handlers, n.errorHandler)
+	return tunnel.Register(n.channel, handlers, n.errorHandler)
 }
 
 func (n *Node) joinHandler(ctx json.Context, req *joinRequest) (*joinResponse, error) {

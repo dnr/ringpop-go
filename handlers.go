@@ -21,6 +21,7 @@
 package ringpop
 
 import (
+	"github.com/temporalio/ringpop-go/tunnel"
 	"github.com/temporalio/tchannel-go/json"
 	"golang.org/x/net/context"
 )
@@ -37,7 +38,7 @@ func (rp *Ringpop) registerHandlers() error {
 		"/admin/lookup": rp.adminLookupHandler,
 	}
 
-	return json.Register(rp.subChannel, handlers, func(ctx context.Context, err error) {
+	return tunnel.Register(rp.subChannel, handlers, func(ctx context.Context, err error) {
 		rp.logger.WithField("error", err).Info("error occured")
 	})
 }
