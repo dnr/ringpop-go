@@ -29,20 +29,21 @@ import (
 	"github.com/temporalio/ringpop-go/hashring"
 	"github.com/temporalio/ringpop-go/logging"
 	"github.com/temporalio/ringpop-go/membership"
+	"github.com/temporalio/ringpop-go/shared"
 	"github.com/temporalio/ringpop-go/swim"
 	"github.com/temporalio/ringpop-go/test/mocks"
-	"github.com/temporalio/ringpop-go/test/mocks/logger"
-	"github.com/temporalio/tchannel-go"
+	mocklogger "github.com/temporalio/ringpop-go/test/mocks/logger"
+	"github.com/temporalio/ringpop-go/tunnel"
 )
 
 type RingpopOptionsTestSuite struct {
 	suite.Suite
 	ringpop *Ringpop
-	channel *tchannel.Channel
+	channel shared.TChannel
 }
 
 func (s *RingpopOptionsTestSuite) SetupTest() {
-	ch, err := tchannel.NewChannel("test", nil)
+	ch, err := tunnel.NewChannel("test", nil)
 	s.Require().NoError(err, "Channel creation failed")
 
 	s.channel = ch

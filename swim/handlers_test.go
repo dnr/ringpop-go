@@ -30,12 +30,11 @@ import (
 	"github.com/benbjohnson/clock"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	"github.com/uber-common/bark"
 	"github.com/temporalio/ringpop-go/discovery/statichosts"
 	"github.com/temporalio/ringpop-go/logging"
 	"github.com/temporalio/ringpop-go/shared"
-	"github.com/temporalio/ringpop-go/test/mocks/logger"
-	"github.com/temporalio/tchannel-go"
+	mocklogger "github.com/temporalio/ringpop-go/test/mocks/logger"
+	"github.com/uber-common/bark"
 )
 
 type HandlerTestSuite struct {
@@ -45,7 +44,7 @@ type HandlerTestSuite struct {
 	testNode  *testNode
 	cluster   *swimCluster
 
-	ctx       tchannel.ContextWithHeaders
+	ctx       shared.ContextWithHeaders
 	ctxCancel context.CancelFunc
 }
 

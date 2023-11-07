@@ -27,7 +27,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"github.com/temporalio/ringpop-go/events/test/mocks"
-	"github.com/temporalio/tchannel-go"
+	"github.com/temporalio/ringpop-go/tunnel"
 )
 
 type PingTestSuite struct {
@@ -58,7 +58,7 @@ func (s *PingTestSuite) TestPing() {
 func (s *PingTestSuite) TestPingFails() {
 	// Create a channel with no handlers registered. Any requests to this
 	// channel should result in an error being returned immediately.
-	ch, err := tchannel.NewChannel("test", nil)
+	ch, err := tunnel.NewChannel("test", nil)
 	ch.ListenAndServe("127.0.0.1:0")
 	s.Require().NoError(err, "channel must create successfully")
 

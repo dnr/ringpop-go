@@ -454,7 +454,7 @@ func sendJoinRequest(node *Node, target string, timeout time.Duration) (*joinRes
 	// make request
 	errC := make(chan error, 1)
 	go func() {
-		errC <- tunnel.CallPeer(ctx, peer, node.service, "/protocol/join", req, res)
+		errC <- tunnel.JsonCallPeer(ctx, peer, node.service, "/protocol/join", req, res)
 	}()
 
 	// wait for result or timeout

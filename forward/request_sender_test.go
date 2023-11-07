@@ -27,8 +27,8 @@ import (
 	"github.com/stretchr/testify/suite"
 	"github.com/temporalio/ringpop-go/events"
 	"github.com/temporalio/ringpop-go/shared"
-	"github.com/temporalio/ringpop-go/test/mocks/logger"
-	"github.com/temporalio/tchannel-go"
+	mocklogger "github.com/temporalio/ringpop-go/test/mocks/logger"
+	"github.com/temporalio/ringpop-go/tunnel"
 )
 
 type requestSenderTestSuite struct {
@@ -42,7 +42,7 @@ type dummies struct {
 	dest     string
 	emitter  events.EventEmitter
 	endpoint string
-	format   tchannel.Format
+	format   shared.Format
 	keys     []string
 	options  *Options
 	request  []byte
@@ -60,15 +60,17 @@ func (s *requestSenderTestSuite) SetupTest() {
 }
 
 func (s *requestSenderTestSuite) newDummies(mockSender *MockSender) *dummies {
-	channel, err := tchannel.NewChannel("dummychannel", nil)
+	channel, err := tunnel.NewChannel("dummychannel", nil)
 	s.NoError(err, "no error creating TChannel")
 
+	sub := channel.GetSubChannel("sub")
+
 	return &dummies{
-		channel:  channel,
+		channel:  sub,
 		dest:     "dummydest",
 		endpoint: "/dummyendpoint",
-		emitter:  NewForwarder(mockSender, channel),
-		format:   tchannel.Thrift,
+		emitter:  NewForwarder(mockSender, sub),
+		format:   shared.Thrift,
 		keys:     []string{},
 		options:  &Options{},
 		request:  []byte{},

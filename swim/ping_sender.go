@@ -89,7 +89,7 @@ func sendPingWithChanges(node *Node, target string, changes []Change, timeout ti
 	errC := make(chan error, 1)
 	res := &ping{}
 	go func() {
-		errC <- tunnel.CallPeer(ctx, peer, node.service, "/protocol/ping", req, res)
+		errC <- tunnel.JsonCallPeer(ctx, peer, node.service, "/protocol/ping", req, res)
 	}()
 
 	// get result or timeout

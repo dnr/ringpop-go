@@ -101,7 +101,7 @@ func (p *pingRequestSender) MakeCall(ctx shared.ContextWithHeaders, res *pingRes
 		}
 
 		peer := p.node.channel.Peers().GetOrAdd(p.peer)
-		err := tunnel.CallPeer(ctx, peer, p.node.service, "/protocol/ping-req", req, &res)
+		err := tunnel.JsonCallPeer(ctx, peer, p.node.service, "/protocol/ping-req", req, &res)
 		if err != nil {
 			bumpPiggybackCounters()
 			errC <- err

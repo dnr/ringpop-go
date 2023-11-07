@@ -33,9 +33,10 @@ import (
 	eventsmocks "github.com/temporalio/ringpop-go/events/test/mocks"
 	"github.com/temporalio/ringpop-go/forward"
 	"github.com/temporalio/ringpop-go/membership"
+	"github.com/temporalio/ringpop-go/shared"
 	"github.com/temporalio/ringpop-go/swim"
 	"github.com/temporalio/ringpop-go/test/mocks"
-	"github.com/temporalio/tchannel-go"
+	"github.com/temporalio/ringpop-go/tunnel"
 )
 
 type destroyable interface {
@@ -43,12 +44,12 @@ type destroyable interface {
 }
 
 type destroyableChannel struct {
-	*tchannel.Channel
+	shared.TChannel
 }
 
 func (c *destroyableChannel) Destroy() {
-	if c.Channel != nil {
-		c.Channel.Close()
+	if c.TChannel != nil {
+		c.TChannel.Close()
 	}
 }
 
@@ -56,7 +57,7 @@ type RingpopTestSuite struct {
 	suite.Suite
 	mockClock    *clock.Mock
 	ringpop      *Ringpop
-	channel      *tchannel.Channel
+	channel      shared.TChannel
 	mockRingpop  *mocks.Ringpop
 	mockSwimNode *mocks.SwimNode
 	stats        *dummyStats
@@ -65,7 +66,7 @@ type RingpopTestSuite struct {
 }
 
 func (s *RingpopTestSuite) makeNewRingpop() (rp *Ringpop, err error) {
-	ch, err := tchannel.NewChannel("test", nil)
+	ch, err := tunnel.NewChannel("test", nil)
 	s.NoError(err, "channel must create successfully")
 
 	err = ch.ListenAndServe("127.0.0.1:0")
@@ -94,7 +95,7 @@ func createSingleNodeCluster(rp *Ringpop) error {
 func (s *RingpopTestSuite) SetupTest() {
 	s.mockClock = clock.NewMock()
 
-	ch, err := tchannel.NewChannel("test", nil)
+	ch, err := tunnel.NewChannel("test", nil)
 	s.NoError(err, "channel must create successfully")
 	s.channel = ch
 
@@ -411,7 +412,7 @@ func (s *RingpopTestSuite) TestStateCreated() {
 func (s *RingpopTestSuite) TestStateInitialized() {
 	// Create channel and start listening so we can actually attempt to
 	// bootstrap
-	ch, _ := tchannel.NewChannel("test2", nil)
+	ch, _ := tunnel.NewChannel("test2", nil)
 	ch.ListenAndServe("127.0.0.1:0")
 	defer ch.Close()
 
@@ -765,7 +766,7 @@ func (s *RingpopTestSuite) TestEmptyJoinListCreatesSingleNodeCluster() {
 }
 
 func (s *RingpopTestSuite) TestErrorOnChannelNotListening() {
-	ch, err := tchannel.NewChannel("test", nil)
+	ch, err := tunnel.NewChannel("test", nil)
 	s.Require().NoError(err)
 
 	rp, err := New("test", Channel(ch))
@@ -951,7 +952,7 @@ func (s *RingpopTestSuite) TestLabelsNotReady() {
 }
 
 func (s *RingpopTestSuite) TestDontAllowBootstrapWithoutChannelListening() {
-	ch, err := tchannel.NewChannel("test", nil)
+	ch, err := tunnel.NewChannel("test", nil)
 	s.NoError(err, "channel must create successfully")
 	s.channel = ch
 

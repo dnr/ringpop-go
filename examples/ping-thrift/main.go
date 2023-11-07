@@ -25,14 +25,16 @@ import (
 	"flag"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/uber-common/bark"
 	"github.com/temporalio/ringpop-go"
 	"github.com/temporalio/ringpop-go/discovery/jsonfile"
 	gen "github.com/temporalio/ringpop-go/examples/ping-thrift/gen-go/ping"
 	"github.com/temporalio/ringpop-go/forward"
+	"github.com/temporalio/ringpop-go/shared"
 	"github.com/temporalio/ringpop-go/swim"
+	"github.com/temporalio/ringpop-go/tunnel"
 	"github.com/temporalio/tchannel-go"
 	"github.com/temporalio/tchannel-go/thrift"
+	"github.com/uber-common/bark"
 )
 
 var (
@@ -42,7 +44,7 @@ var (
 
 type worker struct {
 	ringpop *ringpop.Ringpop
-	channel *tchannel.Channel
+	channel shared.TChannel
 	logger  *log.Logger
 }
 
@@ -97,7 +99,7 @@ func (w *worker) Ping(ctx thrift.Context, request *gen.Ping) (*gen.Pong, error) 
 func main() {
 	flag.Parse()
 
-	ch, err := tchannel.NewChannel("pingchannel", nil)
+	ch, err := tunnel.NewChannel("pingchannel", nil)
 	if err != nil {
 		log.Fatalf("channel did not create successfully: %v", err)
 	}

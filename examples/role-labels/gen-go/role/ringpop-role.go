@@ -9,14 +9,14 @@ import (
 	"github.com/temporalio/ringpop-go"
 	"github.com/temporalio/ringpop-go/forward"
 	"github.com/temporalio/ringpop-go/router"
-	"github.com/temporalio/tchannel-go"
+	"github.com/temporalio/ringpop-go/shared"
 	"github.com/temporalio/tchannel-go/thrift"
 )
 
 type RingpopRoleServiceAdapter struct {
 	impl    TChanRoleService
 	ringpop ringpop.Interface
-	ch      *tchannel.Channel
+	ch      shared.TChannel
 	config  RoleServiceConfiguration
 	router  router.Router
 }
@@ -61,18 +61,19 @@ func (c *RoleServiceConfiguration) validate() error {
 //          return "calculated-shard-key", nil
 //        },
 
-//      SetRole: &RoleServiceSetRoleConfiguration: {
-//        Key: func(ctx thrift.Context, role string) (shardKey string, err error) {
-//          return "calculated-shard-key", nil
-//        },
-//      },
-//    },
-//  )
-//  server.Register(NewTChanRoleServiceServer(adapter))
+//	  SetRole: &RoleServiceSetRoleConfiguration: {
+//	    Key: func(ctx thrift.Context, role string) (shardKey string, err error) {
+//	      return "calculated-shard-key", nil
+//	    },
+//	  },
+//	},
+//
+// )
+// server.Register(NewTChanRoleServiceServer(adapter))
 func NewRingpopRoleServiceAdapter(
 	impl TChanRoleService,
 	rp ringpop.Interface,
-	ch *tchannel.Channel,
+	ch shared.TChannel,
 	config RoleServiceConfiguration,
 ) (TChanRoleService, error) {
 	err := config.validate()

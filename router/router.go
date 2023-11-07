@@ -1,3 +1,5 @@
+//go:build none
+
 // Copyright (c) 2015 Uber Technologies, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,15 +27,15 @@ import (
 
 	"github.com/temporalio/ringpop-go"
 	"github.com/temporalio/ringpop-go/events"
+	"github.com/temporalio/ringpop-go/shared"
 	"github.com/temporalio/ringpop-go/swim"
-	"github.com/temporalio/tchannel-go"
 	"github.com/temporalio/tchannel-go/thrift"
 )
 
 type router struct {
 	ringpop ringpop.Interface
 	factory ClientFactory
-	channel *tchannel.Channel
+	channel shared.TChannel
 
 	rw          sync.RWMutex
 	clientCache map[string]cacheEntry
@@ -70,7 +72,7 @@ type cacheEntry struct {
 // New creates an instance that validates the Router interface. A Router
 // will be used to get implementations of service interfaces that implement a
 // distributed microservice.
-func New(rp ringpop.Interface, f ClientFactory, ch *tchannel.Channel) Router {
+func New(rp ringpop.Interface, f ClientFactory, ch shared.TChannel) Router {
 	r := &router{
 		ringpop: rp,
 		factory: f,

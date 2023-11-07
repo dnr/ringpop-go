@@ -26,13 +26,14 @@ import (
 	"flag"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/uber-common/bark"
 	"github.com/temporalio/ringpop-go"
 	"github.com/temporalio/ringpop-go/discovery/jsonfile"
 	gen "github.com/temporalio/ringpop-go/examples/role-labels/gen-go/role"
+	"github.com/temporalio/ringpop-go/shared"
 	"github.com/temporalio/ringpop-go/swim"
-	"github.com/temporalio/tchannel-go"
+	"github.com/temporalio/ringpop-go/tunnel"
 	"github.com/temporalio/tchannel-go/thrift"
+	"github.com/uber-common/bark"
 )
 
 const (
@@ -47,7 +48,7 @@ var (
 
 type worker struct {
 	ringpop *ringpop.Ringpop
-	channel *tchannel.Channel
+	channel shared.TChannel
 	logger  *log.Logger
 }
 
@@ -73,7 +74,7 @@ func (w *worker) RegisterRoleService() error {
 func main() {
 	flag.Parse()
 
-	ch, err := tchannel.NewChannel("role", nil)
+	ch, err := tunnel.NewChannel("role", nil)
 	if err != nil {
 		log.Fatalf("channel did not create successfully: %v", err)
 	}

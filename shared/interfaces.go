@@ -4,22 +4,28 @@ import (
 	"context"
 	"io"
 	"time"
-
-	"github.com/temporalio/tchannel-go"
 )
 
 // The TChannel interface defines the dependencies for TChannel in Ringpop.
 type TChannel interface {
-	GetSubChannel(string, ...tchannel.SubChannelOption) SubChannel
+	GetSubChannel(string, ...SubChannelOption) SubChannel
 	PeerInfo() LocalPeerInfo
 	ListenAndServe(addr string) error
+	Ping(context.Context, string) error
 	Close()
+}
+
+func Isolated(s *SubChannel) {
+	panic("unimpl")
 }
 
 // SubChannel represents a TChannel SubChannel as used in Ringpop.
 type SubChannel interface {
 	Registrar
 }
+
+// SubChannelOption are used to set options for subchannels.
+type SubChannelOption func(*SubChannel)
 
 // Registrar is the base interface for registering handlers on either the base
 // Channel or the SubChannel
@@ -71,25 +77,25 @@ type CallOptions struct {
 	// This header is only set if the Format is set.
 	Format Format
 
-	// ShardKey determines where this call request belongs, used with ringpop applications.
-	ShardKey string
+	// // ShardKey determines where this call request belongs, used with ringpop applications.
+	// ShardKey string
 
 	// // RequestState stores request state across retry attempts.
 	// RequestState *tchannel.RequestState
 
-	// RoutingKey identifies the destined traffic group. Relays may favor the
-	// routing key over the service name to route the request to a specialized
-	// traffic group.
-	RoutingKey string
+	// // RoutingKey identifies the destined traffic group. Relays may favor the
+	// // routing key over the service name to route the request to a specialized
+	// // traffic group.
+	// RoutingKey string
 
-	// RoutingDelegate identifies a traffic group capable of routing a request
-	// to an instance of the intended service.
-	RoutingDelegate string
+	// // RoutingDelegate identifies a traffic group capable of routing a request
+	// // to an instance of the intended service.
+	// RoutingDelegate string
 
-	// CallerName defaults to the channel's service name for an outbound call.
-	// Optionally override this field to support transparent proxying when inbound
-	// caller names vary across calls.
-	CallerName string
+	// // CallerName defaults to the channel's service name for an outbound call.
+	// // Optionally override this field to support transparent proxying when inbound
+	// // caller names vary across calls.
+	// CallerName string
 }
 
 // ArgReader is the interface for the arg2 and arg3 streams on an
@@ -167,8 +173,8 @@ type InboundCallResponse interface {
 // logrus, go-logging, etc).  The SimpleLogger adapts to the standard go log
 // package.
 type Logger interface {
-	// Enabled returns whether the given level is enabled.
-	Enabled(level tchannel.LogLevel) bool
+	// // Enabled returns whether the given level is enabled.
+	// Enabled(level tchannel.LogLevel) bool
 
 	// Fatal logs a message, then exits with os.Exit(1).
 	Fatal(msg string)
@@ -191,11 +197,11 @@ type Logger interface {
 	// Debug logs a message at debug priority.
 	Debug(msg string)
 
-	// Fields returns the fields that this logger contains.
-	Fields() tchannel.LogFields
+	// // Fields returns the fields that this logger contains.
+	// Fields() tchannel.LogFields
 
-	// WithFields returns a logger with the current logger's fields and fields.
-	WithFields(fields ...tchannel.LogField) Logger
+	// // WithFields returns a logger with the current logger's fields and fields.
+	// WithFields(fields ...tchannel.LogField) Logger
 }
 
 // StatsReporter is the the interface used to report stats.
@@ -208,12 +214,12 @@ type StatsReporter interface {
 // Peer represents a single autobahn service or client with a unique host:port.
 type Peer interface {
 	// HostPort returns the host:port used to connect to this peer.
-	HostPort() string
-	GetConnection(ctx context.Context) (*tchannel.Connection, error)
-	Connect(ctx context.Context) (*tchannel.Connection, error)
-	BeginCall(ctx context.Context, serviceName, methodName string, callOptions *CallOptions) (*tchannel.OutboundCall, error)
-	NumConnections() (inbound int, outbound int)
-	NumPendingOutbound() int
+	// HostPort() string
+	// GetConnection(ctx context.Context) (*tchannel.Connection, error)
+	// Connect(ctx context.Context) (*tchannel.Connection, error)
+	BeginCall(ctx context.Context, serviceName, methodName string, callOptions *CallOptions) (OutboundCall, error)
+	// NumConnections() (inbound int, outbound int)
+	// NumPendingOutbound() int
 }
 
 // PeerList maintains a list of Peers.
@@ -253,4 +259,41 @@ type ContextWithHeaders interface {
 	// Child creates a child context which stores headers separately from
 	// the parent context.
 	Child() ContextWithHeaders
+}
+
+// An OutboundCall is an active call to a remote peer.  A client makes a call
+// by calling BeginCall on the Channel, writing argument content via
+// ArgWriter2() ArgWriter3(), and then reading reading response data via the
+// ArgReader2() and ArgReader3() methods on the Response() object.
+type OutboundCall interface {
+	// Response provides access to the call's response object, which can be used to
+	// read response arguments
+	Response() OutboundCallResponse
+	// Arg2Writer returns a WriteCloser that can be used to write the second argument.
+	// The returned writer must be closed once the write is complete.
+	Arg2Writer() (ArgWriter, error)
+	// Arg3Writer returns a WriteCloser that can be used to write the last argument.
+	// The returned writer must be closed once the write is complete.
+	Arg3Writer() (ArgWriter, error)
+	// LocalPeer returns the local peer information for this call.
+	LocalPeer() LocalPeerInfo
+	// RemotePeer returns the remote peer information for this call.
+	RemotePeer() PeerInfo
+}
+
+// An OutboundCallResponse is the response to an outbound call
+type OutboundCallResponse interface {
+	// ApplicationError returns true if the call resulted in an application level error
+	// TODO(mmihic): In current implementation, you must have called Arg2Reader before this
+	// method returns the proper value.  We should instead have this block until the first
+	// fragment is available, if the first fragment hasn't been received.
+	ApplicationError() bool
+	// Format the format of the request from the ArgScheme transport header.
+	Format() Format
+	// Arg2Reader returns an ArgReader to read the second argument.
+	// The ReadCloser must be closed once the argument has been read.
+	Arg2Reader() (ArgReader, error)
+	// Arg3Reader returns an ArgReader to read the last argument.
+	// The ReadCloser must be closed once the argument has been read.
+	Arg3Reader() (ArgReader, error)
 }

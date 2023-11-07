@@ -33,6 +33,7 @@ import (
 	"github.com/temporalio/ringpop-go/discovery/statichosts"
 	"github.com/temporalio/ringpop-go/events"
 	"github.com/temporalio/ringpop-go/shared"
+	"github.com/temporalio/ringpop-go/tunnel"
 	"github.com/temporalio/ringpop-go/util"
 	"github.com/temporalio/tchannel-go"
 )
@@ -61,7 +62,7 @@ func (dummyIter) Next() (*Member, bool) {
 
 type testNode struct {
 	node    *Node
-	channel *tchannel.Channel
+	channel shared.TChannel
 	clock   *clock.Mock
 }
 
@@ -70,7 +71,7 @@ func (n *testNode) Destroy() {
 	n.channel.Close()
 }
 
-func (n *testNode) closeAndWait(sender *tchannel.Channel) {
+func (n *testNode) closeAndWait(sender shared.TChannel) {
 	n.channel.Close()
 
 	// wait for tchannel to respond with connection refused errors.
@@ -97,7 +98,7 @@ func (n *testNode) closeAndWait(sender *tchannel.Channel) {
 // newChannelNode creates a testNode with a listening channel and associated
 // SWIM node. The channel listens on a random port assigned by the OS.
 func newChannelNode(t *testing.T) *testNode {
-	ch, err := tchannel.NewChannel("test", nil)
+	ch, err := tunnel.NewChannel("test", nil)
 	require.NoError(t, err, "channel must create successfully")
 
 	// Set the channel listening so it binds to the socket and we get a port
@@ -117,7 +118,7 @@ func newChannelNode(t *testing.T) *testNode {
 // newChannelNodeWithHostPort creates a testNode with the address specified by
 // the hostport parameter.
 func newChannelNodeWithHostPort(t *testing.T, hostport string) *testNode {
-	ch, err := tchannel.NewChannel("test", nil)
+	ch, err := tunnel.NewChannel("test", nil)
 	require.NoError(t, err, "channel must create successfully")
 
 	c := clock.NewMock()
@@ -237,7 +238,6 @@ func destroyNodes(tnodes ...*testNode) {
 // See:
 // http://tools.ietf.org/html/rfc5737
 // http://stackoverflow.com/questions/10456044/what-is-a-good-invalid-ip-address-to-use-for-unit-tests
-//
 func fakeHostPorts(fromHost, toHost, fromPort, toPort int) []string {
 	var hostports []string
 	for h := fromHost; h <= toHost; h++ {
@@ -252,7 +252,7 @@ func fakeHostPorts(fromHost, toHost, fromPort, toPort int) []string {
 // ports.
 type swimCluster struct {
 	nodes    []*Node
-	channels []*tchannel.Channel
+	channels []shared.TChannel
 }
 
 // newSwimCluster creates a new swimCluster with the number of nodes specified
@@ -260,9 +260,9 @@ type swimCluster struct {
 // need a bootstrapped cluster.
 func newSwimCluster(size int) *swimCluster {
 	var nodes []*Node
-	var channels []*tchannel.Channel
+	var channels []shared.TChannel
 	for i := 0; i < size; i++ {
-		ch, err := tchannel.NewChannel("test", nil)
+		ch, err := tunnel.NewChannel("test", nil)
 		if err != nil {
 			panic(err)
 		}

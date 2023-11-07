@@ -29,13 +29,13 @@ import (
 	"time"
 
 	"github.com/cactus/go-statsd-client/statsd"
-	"github.com/uber-common/bark"
 	"github.com/temporalio/ringpop-go"
 	"github.com/temporalio/ringpop-go/discovery/jsonfile"
 	"github.com/temporalio/ringpop-go/swim"
+	"github.com/temporalio/ringpop-go/tunnel"
+	"github.com/uber-common/bark"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/temporalio/tchannel-go"
 )
 
 var (
@@ -61,7 +61,7 @@ func main() {
 		log.Fatalf("bad hostport: %s", *hostport)
 	}
 
-	ch, err := tchannel.NewChannel("ringpop", nil)
+	ch, err := tunnel.NewChannel("ringpop", nil)
 	if err != nil {
 		log.Fatalf("could not create channel: %v", err)
 	}

@@ -30,8 +30,7 @@ import (
 	"github.com/temporalio/ringpop-go/events"
 	"github.com/temporalio/ringpop-go/logging"
 	"github.com/temporalio/ringpop-go/shared"
-	"github.com/temporalio/tchannel-go"
-	"github.com/temporalio/tchannel-go/raw"
+	"github.com/temporalio/ringpop-go/tunnel"
 	"github.com/temporalio/tchannel-go/thrift"
 	log "github.com/uber-common/bark"
 )
@@ -179,10 +178,10 @@ func (s *requestSender) MakeCall(ctx context.Context, res *[]byte, fwdError *err
 			if headers == nil {
 				headers = []byte{0, 0}
 			}
-			_, arg3, _, err = raw.WriteArgs(call, headers, s.request)
+			_, arg3, _, err = tunnel.RawWriteArgs(call, headers, s.request)
 		} else {
-			var resp *tchannel.OutboundCallResponse
-			_, arg3, resp, err = raw.WriteArgs(call, headers, s.request)
+			var resp shared.OutboundCallResponse
+			_, arg3, resp, err = tunnel.RawWriteArgs(call, headers, s.request)
 
 			// check if the response is an application level error
 			if err == nil && resp.ApplicationError() {

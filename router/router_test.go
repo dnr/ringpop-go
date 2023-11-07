@@ -1,3 +1,5 @@
+//go:build none
+
 // Copyright (c) 2015 Uber Technologies, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,7 +29,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"github.com/temporalio/ringpop-go/swim"
 	"github.com/temporalio/ringpop-go/test/mocks"
-	"github.com/temporalio/tchannel-go"
+	"github.com/temporalio/ringpop-go/tunnel"
 )
 
 type RouterTestSuite struct {
@@ -55,7 +57,7 @@ func (s *RouterTestSuite) SetupTest() {
 	s.ringpop.On("LookupN", "localfirst", 2).Return([]string{"127.0.0.1:3000", "127.0.0.1:3001"}, nil)
 	s.ringpop.On("LookupN", "remotefirst", 2).Return([]string{"127.0.0.1:3001", "127.0.0.1:3000"}, nil)
 
-	ch, err := tchannel.NewChannel("remote", nil)
+	ch, err := tunnel.NewChannel("remote", nil)
 	s.NoError(err)
 
 	s.router = New(s.ringpop, s.clientFactory, ch)

@@ -38,7 +38,7 @@ func (rp *Ringpop) registerHandlers() error {
 		"/admin/lookup": rp.adminLookupHandler,
 	}
 
-	return tunnel.Register(rp.subChannel, handlers, func(ctx context.Context, err error) {
+	return tunnel.JsonRegister(rp.subChannel, handlers, func(ctx context.Context, err error) {
 		rp.logger.WithField("error", err).Info("error occured")
 	})
 }

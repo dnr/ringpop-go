@@ -42,7 +42,6 @@ import (
 	athrift "github.com/apache/thrift/lib/go/thrift"
 	"github.com/benbjohnson/clock"
 	"github.com/dgryski/go-farm"
-	"github.com/temporalio/tchannel-go"
 	log "github.com/uber-common/bark"
 )
 
@@ -61,8 +60,8 @@ type Interface interface {
 	GetReachableMemberObjects(predicates ...swim.MemberPredicate) ([]swim.Member, error)
 	CountReachableMembers(predicates ...swim.MemberPredicate) (int, error)
 
-	HandleOrForward(key string, request []byte, response *[]byte, service, endpoint string, format tchannel.Format, opts *forward.Options) (bool, error)
-	Forward(dest string, keys []string, request []byte, service, endpoint string, format tchannel.Format, opts *forward.Options) ([]byte, error)
+	HandleOrForward(key string, request []byte, response *[]byte, service, endpoint string, format shared.Format, opts *forward.Options) (bool, error)
+	Forward(dest string, keys []string, request []byte, service, endpoint string, format shared.Format, opts *forward.Options) ([]byte, error)
 
 	Labels() (*swim.NodeLabels, error)
 
@@ -189,7 +188,7 @@ func (rp *Ringpop) init() error {
 	rp.stats.prefix = fmt.Sprintf("ringpop.%s", rp.stats.hostport)
 	rp.stats.keys = make(map[string]string)
 
-	rp.subChannel = rp.channel.GetSubChannel("ringpop", tchannel.Isolated)
+	rp.subChannel = rp.channel.GetSubChannel("ringpop", shared.Isolated)
 	rp.registerHandlers()
 
 	rp.node = swim.NewNode(rp.config.App, address, rp.subChannel, &swim.Options{

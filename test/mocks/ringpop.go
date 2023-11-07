@@ -6,8 +6,8 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/temporalio/ringpop-go/events"
 	"github.com/temporalio/ringpop-go/forward"
+	"github.com/temporalio/ringpop-go/shared"
 	"github.com/temporalio/ringpop-go/swim"
-	"github.com/temporalio/tchannel-go"
 )
 
 type Ringpop struct {
@@ -231,18 +231,18 @@ func (_m *Ringpop) CountReachableMembers(predicates ...swim.MemberPredicate) (in
 }
 
 // HandleOrForward provides a mock function with given fields: key, request, response, service, endpoint, format, opts
-func (_m *Ringpop) HandleOrForward(key string, request []byte, response *[]byte, service string, endpoint string, format tchannel.Format, opts *forward.Options) (bool, error) {
+func (_m *Ringpop) HandleOrForward(key string, request []byte, response *[]byte, service string, endpoint string, format shared.Format, opts *forward.Options) (bool, error) {
 	ret := _m.Called(key, request, response, service, endpoint, format, opts)
 
 	var r0 bool
-	if rf, ok := ret.Get(0).(func(string, []byte, *[]byte, string, string, tchannel.Format, *forward.Options) bool); ok {
+	if rf, ok := ret.Get(0).(func(string, []byte, *[]byte, string, string, shared.Format, *forward.Options) bool); ok {
 		r0 = rf(key, request, response, service, endpoint, format, opts)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, []byte, *[]byte, string, string, tchannel.Format, *forward.Options) error); ok {
+	if rf, ok := ret.Get(1).(func(string, []byte, *[]byte, string, string, shared.Format, *forward.Options) error); ok {
 		r1 = rf(key, request, response, service, endpoint, format, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -252,11 +252,11 @@ func (_m *Ringpop) HandleOrForward(key string, request []byte, response *[]byte,
 }
 
 // Forward provides a mock function with given fields: dest, keys, request, service, endpoint, format, opts
-func (_m *Ringpop) Forward(dest string, keys []string, request []byte, service string, endpoint string, format tchannel.Format, opts *forward.Options) ([]byte, error) {
+func (_m *Ringpop) Forward(dest string, keys []string, request []byte, service string, endpoint string, format shared.Format, opts *forward.Options) ([]byte, error) {
 	ret := _m.Called(dest, keys, request, service, endpoint, format, opts)
 
 	var r0 []byte
-	if rf, ok := ret.Get(0).(func(string, []string, []byte, string, string, tchannel.Format, *forward.Options) []byte); ok {
+	if rf, ok := ret.Get(0).(func(string, []string, []byte, string, string, shared.Format, *forward.Options) []byte); ok {
 		r0 = rf(dest, keys, request, service, endpoint, format, opts)
 	} else {
 		if ret.Get(0) != nil {
@@ -265,7 +265,7 @@ func (_m *Ringpop) Forward(dest string, keys []string, request []byte, service s
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, []string, []byte, string, string, tchannel.Format, *forward.Options) error); ok {
+	if rf, ok := ret.Get(1).(func(string, []string, []byte, string, string, shared.Format, *forward.Options) error); ok {
 		r1 = rf(dest, keys, request, service, endpoint, format, opts)
 	} else {
 		r1 = ret.Error(1)

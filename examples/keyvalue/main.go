@@ -27,13 +27,13 @@ import (
 	"sync"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/uber-common/bark"
 	"github.com/temporalio/ringpop-go"
 	"github.com/temporalio/ringpop-go/discovery/jsonfile"
 	gen "github.com/temporalio/ringpop-go/examples/keyvalue/gen-go/keyvalue"
 	"github.com/temporalio/ringpop-go/swim"
-	"github.com/temporalio/tchannel-go"
+	"github.com/temporalio/ringpop-go/tunnel"
 	"github.com/temporalio/tchannel-go/thrift"
+	"github.com/uber-common/bark"
 )
 
 var (
@@ -91,7 +91,7 @@ func (w *worker) GetAll(ctx thrift.Context, keys []string) ([]string, error) {
 func main() {
 	flag.Parse()
 
-	ch, err := tchannel.NewChannel("keyvalue", nil)
+	ch, err := tunnel.NewChannel("keyvalue", nil)
 	if err != nil {
 		log.Fatalf("channel did not create successfully: %v", err)
 	}

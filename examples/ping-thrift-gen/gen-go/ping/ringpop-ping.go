@@ -9,14 +9,14 @@ import (
 	"github.com/temporalio/ringpop-go"
 	"github.com/temporalio/ringpop-go/forward"
 	"github.com/temporalio/ringpop-go/router"
-	"github.com/temporalio/tchannel-go"
+	"github.com/temporalio/ringpop-go/shared"
 	"github.com/temporalio/tchannel-go/thrift"
 )
 
 type RingpopPingPongServiceAdapter struct {
 	impl    TChanPingPongService
 	ringpop ringpop.Interface
-	ch      *tchannel.Channel
+	ch      shared.TChannel
 	config  PingPongServiceConfiguration
 	router  router.Router
 }
@@ -39,28 +39,29 @@ func (c *PingPongServiceConfiguration) validate() error {
 // NewRingpopPingPongServiceAdapter creates an implementation of the TChanPingPongService interface. This specific implementation will use to configuration provided during construction to deterministically route calls to nodes from a ringpop cluster. The channel should be the channel on which the service exposes its endpoints. Forwarded calls, calls to unconfigured endpoints and calls that already were executed on the right machine will be passed on the the implementation passed in during construction.
 //
 // Example usage:
-//  import "github.com/temporalio/tchannel-go/thrift"
 //
-//  var server thrift.Server
-//  server = ...
+//	import "github.com/temporalio/tchannel-go/thrift"
 //
-//  var handler TChanPingPongService
-//  handler = &YourImplementation{}
+//	var server thrift.Server
+//	server = ...
 //
-//  adapter, _ := NewRingpopPingPongServiceAdapter(handler, ringpop, channel,
-//    PingPongServiceConfiguration{
-//      Ping: &PingPongServicePingConfiguration: {
-//        Key: func(ctx thrift.Context, request *Ping) (shardKey string, err error) {
-//          return "calculated-shard-key", nil
-//        },
-//      },
-//    },
-//  )
-//  server.Register(NewTChanPingPongServiceServer(adapter))
+//	var handler TChanPingPongService
+//	handler = &YourImplementation{}
+//
+//	adapter, _ := NewRingpopPingPongServiceAdapter(handler, ringpop, channel,
+//	  PingPongServiceConfiguration{
+//	    Ping: &PingPongServicePingConfiguration: {
+//	      Key: func(ctx thrift.Context, request *Ping) (shardKey string, err error) {
+//	        return "calculated-shard-key", nil
+//	      },
+//	    },
+//	  },
+//	)
+//	server.Register(NewTChanPingPongServiceServer(adapter))
 func NewRingpopPingPongServiceAdapter(
 	impl TChanPingPongService,
 	rp ringpop.Interface,
-	ch *tchannel.Channel,
+	ch shared.TChannel,
 	config PingPongServiceConfiguration,
 ) (TChanPingPongService, error) {
 	err := config.validate()

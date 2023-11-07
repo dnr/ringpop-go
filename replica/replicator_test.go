@@ -28,7 +28,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"github.com/temporalio/ringpop-go/forward"
 	"github.com/temporalio/ringpop-go/shared"
-	"github.com/temporalio/tchannel-go"
+	"github.com/temporalio/ringpop-go/tunnel"
 	"github.com/temporalio/tchannel-go/json"
 	"golang.org/x/net/context"
 )
@@ -59,9 +59,9 @@ func (d dummySender) LookupN(key string, n int) ([]string, error) {
 type ReplicatorTestSuite struct {
 	suite.Suite
 	sender     *dummySender
-	channel    *tchannel.Channel
+	channel    shared.TChannel
 	replicator *Replicator
-	peers      map[string]*tchannel.Channel
+	peers      map[string]shared.TChannel
 }
 
 type Ping struct {
@@ -79,7 +79,7 @@ type Pong struct {
 }
 
 func (s *ReplicatorTestSuite) SetupSuite() {
-	ch, err := tchannel.NewChannel("service", nil)
+	ch, err := tunnel.NewChannel("service", nil)
 	s.Require().NoError(err, "channel must create successfully")
 	s.channel = ch
 
@@ -95,10 +95,10 @@ func (s *ReplicatorTestSuite) SetupSuite() {
 
 func (s *ReplicatorTestSuite) AddPeer(address string) {
 	if s.peers == nil {
-		s.peers = make(map[string]*tchannel.Channel)
+		s.peers = make(map[string]shared.TChannel)
 	}
 
-	ch, err := tchannel.NewChannel("ping", nil)
+	ch, err := tunnel.NewChannel("ping", nil)
 	s.Require().NoError(err, "channel must create successfully")
 	s.RegisterHandler(ch, address)
 	s.Require().NoError(ch.ListenAndServe(address))

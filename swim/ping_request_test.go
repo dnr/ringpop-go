@@ -27,8 +27,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"github.com/temporalio/ringpop-go/events"
+	"github.com/temporalio/ringpop-go/tunnel"
 	"github.com/temporalio/ringpop-go/util"
-	"github.com/temporalio/tchannel-go"
 )
 
 type PingRequestTestSuite struct {
@@ -215,7 +215,7 @@ func TestIndirectPing3(t *testing.T) {
 	bootstrapNodes(t, sender, helper1, helper2)
 	waitForConvergence(t, 100, sender, helper1, helper2)
 
-	ch, err := tchannel.NewChannel("test", nil)
+	ch, err := tunnel.NewChannel("test", nil)
 	assert.NoError(t, err, "expected to setup tchannel")
 	err = ch.ListenAndServe("127.0.0.1:0")
 	assert.NoError(t, err, "expected to listen on channel")

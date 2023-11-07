@@ -23,8 +23,8 @@ package swim
 import (
 	"errors"
 
+	"github.com/temporalio/ringpop-go/shared"
 	"github.com/temporalio/ringpop-go/tunnel"
-	"github.com/temporalio/tchannel-go/json"
 	log "github.com/uber-common/bark"
 	"golang.org/x/net/context"
 )
@@ -57,7 +57,7 @@ type HealResponse struct {
 
 // notImplementedHandler is a dummy handler that returns an error explaining
 // this method is not implemented.
-func notImplementedHandler(ctx json.Context, req *emptyArg) (*emptyArg, error) {
+func notImplementedHandler(ctx shared.ContextWithHeaders, req *emptyArg) (*emptyArg, error) {
 	return nil, errors.New("handler not implemented")
 }
 
@@ -79,10 +79,10 @@ func (n *Node) registerHandlers() error {
 		"/admin/reap":                n.reapFaultyMembersHandler,
 	}
 
-	return tunnel.Register(n.channel, handlers, n.errorHandler)
+	return tunnel.JsonRegister(n.channel, handlers, n.errorHandler)
 }
 
-func (n *Node) joinHandler(ctx json.Context, req *joinRequest) (*joinResponse, error) {
+func (n *Node) joinHandler(ctx shared.ContextWithHeaders, req *joinRequest) (*joinResponse, error) {
 	res, err := handleJoin(n, req)
 	if err != nil {
 		n.logger.WithFields(log.Fields{
@@ -95,15 +95,15 @@ func (n *Node) joinHandler(ctx json.Context, req *joinRequest) (*joinResponse, e
 	return res, nil
 }
 
-func (n *Node) pingHandler(ctx json.Context, req *ping) (*ping, error) {
+func (n *Node) pingHandler(ctx shared.ContextWithHeaders, req *ping) (*ping, error) {
 	return handlePing(n, req)
 }
 
-func (n *Node) pingRequestHandler(ctx json.Context, req *pingRequest) (*pingResponse, error) {
+func (n *Node) pingRequestHandler(ctx shared.ContextWithHeaders, req *pingRequest) (*pingResponse, error) {
 	return handlePingRequest(n, req)
 }
 
-func (n *Node) gossipHandler(ctx json.Context, req *emptyArg) (*emptyArg, error) {
+func (n *Node) gossipHandler(ctx shared.ContextWithHeaders, req *emptyArg) (*emptyArg, error) {
 	switch n.gossip.Stopped() {
 	case true:
 		n.gossip.Start()
@@ -114,17 +114,17 @@ func (n *Node) gossipHandler(ctx json.Context, req *emptyArg) (*emptyArg, error)
 	return &emptyArg{}, nil
 }
 
-func (n *Node) gossipHandlerStart(ctx json.Context, req *emptyArg) (*emptyArg, error) {
+func (n *Node) gossipHandlerStart(ctx shared.ContextWithHeaders, req *emptyArg) (*emptyArg, error) {
 	n.gossip.Start()
 	return &emptyArg{}, nil
 }
 
-func (n *Node) gossipHandlerStop(ctx json.Context, req *emptyArg) (*emptyArg, error) {
+func (n *Node) gossipHandlerStop(ctx shared.ContextWithHeaders, req *emptyArg) (*emptyArg, error) {
 	n.gossip.Stop()
 	return &emptyArg{}, nil
 }
 
-func (n *Node) discoverProviderHealerHandler(ctx json.Context, req *emptyArg) (*HealResponse, error) {
+func (n *Node) discoverProviderHealerHandler(ctx shared.ContextWithHeaders, req *emptyArg) (*HealResponse, error) {
 	targets, err := n.healer.Heal()
 	msg := ""
 	if err != nil {
@@ -133,17 +133,17 @@ func (n *Node) discoverProviderHealerHandler(ctx json.Context, req *emptyArg) (*
 	return &HealResponse{Targets: targets, Error: msg}, nil
 }
 
-func (n *Node) tickHandler(ctx json.Context, req *emptyArg) (*ping, error) {
+func (n *Node) tickHandler(ctx shared.ContextWithHeaders, req *emptyArg) (*ping, error) {
 	n.gossip.ProtocolPeriod()
 	return &ping{Checksum: n.memberlist.Checksum()}, nil
 }
 
-func (n *Node) adminJoinHandler(ctx json.Context, req *emptyArg) (*Status, error) {
+func (n *Node) adminJoinHandler(ctx shared.ContextWithHeaders, req *emptyArg) (*Status, error) {
 	n.memberlist.SetLocalStatus(Alive)
 	return &Status{Status: "rejoined"}, nil
 }
 
-func (n *Node) adminLeaveHandler(ctx json.Context, req *emptyArg) (*Status, error) {
+func (n *Node) adminLeaveHandler(ctx shared.ContextWithHeaders, req *emptyArg) (*Status, error) {
 	n.memberlist.SetLocalStatus(Leave)
 	return &Status{Status: "ok"}, nil
 }
@@ -152,7 +152,7 @@ func (n *Node) adminLeaveHandler(ctx json.Context, req *emptyArg) (*Status, erro
 // declares all the members marked as faulty as a tombstone. This will clean all
 // these members from the membership in the complete cluster due to the gossipy
 // nature of swim
-func (n *Node) reapFaultyMembersHandler(ctx json.Context, req *emptyArg) (*Status, error) {
+func (n *Node) reapFaultyMembersHandler(ctx shared.ContextWithHeaders, req *emptyArg) (*Status, error) {
 	members := n.memberlist.GetMembers()
 	for _, member := range members {
 		if member.Status == Faulty {
