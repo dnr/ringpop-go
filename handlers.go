@@ -23,7 +23,6 @@ package ringpop
 import (
 	"github.com/temporalio/ringpop-go/shared"
 	"github.com/temporalio/ringpop-go/tunnel"
-	"github.com/temporalio/tchannel-go/json"
 	"golang.org/x/net/context"
 )
 
@@ -48,7 +47,7 @@ func (rp *Ringpop) health(ctx shared.ContextWithHeaders, req *Arg) (*Arg, error)
 	return nil, nil
 }
 
-func (rp *Ringpop) adminStatsHandler(ctx json.Context, req *Arg) (map[string]interface{}, error) {
+func (rp *Ringpop) adminStatsHandler(ctx shared.ContextWithHeaders, req *Arg) (map[string]interface{}, error) {
 	return handleStats(rp), nil
 }
 
@@ -60,7 +59,7 @@ type lookupResponse struct {
 	Dest string `json:"dest"`
 }
 
-func (rp *Ringpop) adminLookupHandler(ctx json.Context, req *lookupRequest) (*lookupResponse, error) {
+func (rp *Ringpop) adminLookupHandler(ctx shared.ContextWithHeaders, req *lookupRequest) (*lookupResponse, error) {
 	dest, err := rp.Lookup(req.Key)
 	if err != nil {
 		return nil, err
@@ -68,6 +67,6 @@ func (rp *Ringpop) adminLookupHandler(ctx json.Context, req *lookupRequest) (*lo
 	return &lookupResponse{Dest: dest}, nil
 }
 
-func (rp *Ringpop) adminReloadHandler(ctx json.Context, req *Arg) (*Arg, error) {
+func (rp *Ringpop) adminReloadHandler(ctx shared.ContextWithHeaders, req *Arg) (*Arg, error) {
 	return nil, nil
 }

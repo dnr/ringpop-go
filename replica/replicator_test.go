@@ -29,7 +29,6 @@ import (
 	"github.com/temporalio/ringpop-go/forward"
 	"github.com/temporalio/ringpop-go/shared"
 	"github.com/temporalio/ringpop-go/tunnel"
-	"github.com/temporalio/tchannel-go/json"
 	"golang.org/x/net/context"
 )
 
@@ -116,13 +115,13 @@ func (s *ReplicatorTestSuite) ResetLookupN() {
 
 func (s *ReplicatorTestSuite) RegisterHandler(ch shared.SubChannel, address string) {
 	handler := map[string]interface{}{
-		"/ping": func(ctx json.Context, ping *Ping) (*Pong, error) {
+		"/ping": func(ctx shared.ContextWithHeaders, ping *Ping) (*Pong, error) {
 			s.Equal(ping.From, "127.0.0.1:3001")
 			return &Pong{"Hello, world!", address}, nil
 		},
 	}
 
-	s.Require().NoError(json.Register(ch, handler, func(ctx context.Context, err error) {
+	s.Require().NoError(tunnel.JsonRegister(ch, handler, func(ctx context.Context, err error) {
 		s.Fail("calls shouldn't fail")
 	}))
 }

@@ -26,12 +26,11 @@ import (
 	"errors"
 	"sync"
 
-	log "github.com/uber-common/bark"
 	"github.com/temporalio/ringpop-go/forward"
 	"github.com/temporalio/ringpop-go/logging"
 	"github.com/temporalio/ringpop-go/shared"
 	"github.com/temporalio/ringpop-go/util"
-	"github.com/temporalio/tchannel-go"
+	log "github.com/uber-common/bark"
 )
 
 // FanoutMode defines how a replicator should fanout it's requests
@@ -87,7 +86,7 @@ type callOptions struct {
 	Request    []byte
 	KeysByDest map[string][]string
 	Operation  string
-	Format     tchannel.Format
+	Format     shared.Format
 }
 
 // A Replicator is used to replicate a request across nodes such that they share

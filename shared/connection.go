@@ -1,7 +1,5 @@
 package shared
 
-// --- copied from tchannel-go/connection.go
-
 import "fmt"
 
 // PeerVersion contains version related information for a specific peer.

@@ -1,5 +1,3 @@
-//go:build FIXME
-
 // Copyright (c) 2015 Uber Technologies, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,6 +20,7 @@
 
 package forward
 
+/*
 import (
 	"bytes"
 	"context"
@@ -456,3 +455,4 @@ func DeserializeThrift(ctx context.Context, b []byte, s athrift.TStruct) error {
 	transport := athrift.NewStreamTransportR(reader)
 	return s.Read(ctx, athrift.NewTBinaryProtocolTransport(transport))
 }
+*/
