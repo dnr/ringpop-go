@@ -1,6 +1,6 @@
 .PHONY: clean clean-common clean-mocks coveralls testpop lint mocks out setup test test-integration test-unit test-race
 
-SHELL = /bin/bash
+SHELL = /bin/sh
 
 export GO15VENDOREXPERIMENT=1
 NOVENDOR = $(shell GO15VENDOREXPERIMENT=1 glide novendor)

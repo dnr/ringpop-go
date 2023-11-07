@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # run-vet runs go vet on .go files in the specified directory. It runs the
 # output through lint-warn. It then swaps stdin/stdout so the error output

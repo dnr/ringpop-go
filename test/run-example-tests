@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Runs the ringpop-admin tests.
 #
@@ -8,7 +8,7 @@
 set -euo pipefail
 
 
-declare cram_opts="-v --shell=/bin/bash --indent=4"
+declare cram_opts="-v --shell=/bin/sh --indent=4"
 declare prog_cram="cram"
 declare test_files="${0%/*}/../examples/*/README.md"
 

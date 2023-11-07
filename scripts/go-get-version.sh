@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Same as `go get` but you can specify a git commit ref.
 #

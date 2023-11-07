@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Runs `go test -v`, parses the output and prints a summary at the end. Also
 # only outputs errors by default unless -v is specified.
