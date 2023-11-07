@@ -28,7 +28,6 @@ import (
 
 	"github.com/temporalio/ringpop-go/logging"
 	"github.com/temporalio/ringpop-go/shared"
-	"github.com/temporalio/ringpop-go/tunnel"
 )
 
 // A Ping is used as an Arg3 for the ping TChannel call / response
@@ -89,7 +88,7 @@ func sendPingWithChanges(node *Node, target string, changes []Change, timeout ti
 	errC := make(chan error, 1)
 	res := &ping{}
 	go func() {
-		errC <- tunnel.JsonCallPeer(ctx, peer, node.service, "/protocol/ping", req, res)
+		errC <- peer.Call(ctx, node.service, "/protocol/ping", nil, req, res)
 	}()
 
 	// get result or timeout

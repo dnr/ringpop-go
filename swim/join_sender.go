@@ -29,7 +29,6 @@ import (
 
 	"github.com/temporalio/ringpop-go/logging"
 	"github.com/temporalio/ringpop-go/shared"
-	"github.com/temporalio/ringpop-go/tunnel"
 	"github.com/temporalio/ringpop-go/util"
 	log "github.com/uber-common/bark"
 )
@@ -454,7 +453,7 @@ func sendJoinRequest(node *Node, target string, timeout time.Duration) (*joinRes
 	// make request
 	errC := make(chan error, 1)
 	go func() {
-		errC <- tunnel.JsonCallPeer(ctx, peer, node.service, "/protocol/join", req, res)
+		errC <- peer.Call(ctx, peer, node.service, "/protocol/join", nil, req, res)
 	}()
 
 	// wait for result or timeout

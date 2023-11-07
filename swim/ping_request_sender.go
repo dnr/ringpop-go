@@ -27,7 +27,6 @@ import (
 
 	"github.com/temporalio/ringpop-go/logging"
 	"github.com/temporalio/ringpop-go/shared"
-	"github.com/temporalio/ringpop-go/tunnel"
 	log "github.com/uber-common/bark"
 )
 
@@ -101,7 +100,7 @@ func (p *pingRequestSender) MakeCall(ctx shared.ContextWithHeaders, res *pingRes
 		}
 
 		peer := p.node.channel.Peers().GetOrAdd(p.peer)
-		err := tunnel.JsonCallPeer(ctx, peer, p.node.service, "/protocol/ping-req", req, &res)
+		err := peer.Call(ctx, peer, p.node.service, "/protocol/ping-req", nil, req, &res)
 		if err != nil {
 			bumpPiggybackCounters()
 			errC <- err

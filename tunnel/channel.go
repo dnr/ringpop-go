@@ -2,6 +2,7 @@ package tunnel
 
 import (
 	"context"
+	"sync"
 
 	"github.com/temporalio/ringpop-go/shared"
 )
@@ -13,29 +14,51 @@ const (
 )
 
 type (
+	Tunnel interface {
+	}
+
 	tun struct {
+		lock        sync.Mutex
+		subChannels map[string]*sub
 	}
 
 	sub struct {
+		lock        sync.Mutex
+		t           *tun
+		serviceName string
+	}
+
+	peer struct {
 	}
 )
 
 var _ shared.TChannel = (*tun)(nil)
 var _ shared.SubChannel = (*sub)(nil)
 
-func NewChannel(serviceName string, opts any) (*tun, error) {
-	panic("unimpl")
+func NewChannel(_ string, opts any) (*tun, error) {
+	return &tun{
+		subChannels: make(map[string]*sub),
+	}, nil
 }
 
-func (t *tun) GetSubChannel(fixme string) shared.SubChannel {
-	panic("unimpl")
+func (t *tun) GetSubChannel(serviceName string) shared.SubChannel {
+	t.lock.Lock()
+	defer t.lock.Unlock()
+	if sub, ok := t.subChannels[serviceName]; ok {
+		return sub
+	}
+	sub := &sub{
+		t:           t,
+		serviceName: serviceName,
+	}
+	t.subChannels[serviceName] = sub
+	return sub
 }
 
 func (t *tun) PeerInfo() shared.LocalPeerInfo {
 	panic("unimpl")
 }
 
-// test only
 func (t *tun) ListenAndServe(hostport string) error {
 	panic("unimpl")
 }
@@ -50,7 +73,7 @@ func (t *tun) Close() {
 }
 
 func (s *sub) ServiceName() string {
-	panic("unimpl")
+	return s.serviceName
 }
 
 // Register registers a handler for ServiceName and the given method.
@@ -58,28 +81,18 @@ func (s *sub) Register(h shared.Handler, methodName string) {
 	panic("unimpl")
 }
 
-// // Logger returns the logger for this Registrar.
-// func (s *sub) Logger() shared.Logger {
-// 	panic("unimpl")
-// }
-
-// // StatsReporter returns the stats reporter for this Registrar
-// func (s *sub) StatsReporter() shared.StatsReporter {
-// 	panic("unimpl")
-// }
-
-// // StatsTags returns the tags that should be used.
-// func (s *sub) StatsTags() map[string]string {
-// 	panic("unimpl")
-// }
-
 // Peers returns the peer list for this Registrar.
 func (s *sub) Peers() shared.PeerList {
+	return s // this is a PeerList too
+}
+
+func (s *sub) GetOrAdd(hostPort string) shared.Peer {
 	panic("unimpl")
 }
 
-// JsonCallPeer makes a JSON call using the given peer.
-func JsonCallPeer(ctx shared.ContextWithHeaders, peer shared.Peer, serviceName, method string, arg, resp interface{}) error {
+func (p *peer) Call(
+	ctx context.Context, serviceName, methodName string, callOptions *shared.CallOptions, arg, resp any,
+) error {
 	panic("unimpl")
 }
 
@@ -90,10 +103,9 @@ type Handlers map[string]interface{}
 // JSON handler function. The handler functions should have the following signature:
 // func(context.Context, *ArgType)(*ResType, error)
 func JsonRegister(registrar shared.Registrar, funcs Handlers, onError func(context.Context, error)) error {
-	panic("unimpl")
-}
-
-// RawWriteArgs writes the given arguments to the call, and returns the response args.
-func RawWriteArgs(call shared.OutboundCall, arg2, arg3 []byte) ([]byte, []byte, shared.OutboundCallResponse, error) {
-	panic("unimpl")
+	// FIXME: what about onError?
+	for name, handler := range funcs {
+		registrar.Register(handler, name)
+	}
+	return nil
 }

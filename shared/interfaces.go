@@ -8,6 +8,7 @@ import (
 type TChannel interface {
 	GetSubChannel(serviceName string) SubChannel
 	PeerInfo() LocalPeerInfo
+	ListenAndServe(hostport string) error
 	Ping(context.Context, string) error
 	Close()
 }
@@ -23,8 +24,8 @@ type Registrar interface {
 	// ServiceName returns the service name that this Registrar is for.
 	ServiceName() string
 
-	// // Register registers a handler for ServiceName and the given method.
-	// Register(h Handler, methodName string)
+	// Register registers a handler for ServiceName and the given method.
+	Register(h Handler, methodName string)
 
 	// // Logger returns the logger for this Registrar.
 	// Logger() Logger
@@ -59,6 +60,9 @@ const (
 
 // CallOptions are options for a specific call.
 type CallOptions struct {
+	RawHeaders []byte // FIXME
+	Headers    any    // FIXME
+
 	// Format is arg scheme used for this call, sent in the "as" header.
 	// This header is only set if the Format is set.
 	Format Format
@@ -203,9 +207,17 @@ type Peer interface {
 	// HostPort() string
 	// GetConnection(ctx context.Context) (*tchannel.Connection, error)
 	// Connect(ctx context.Context) (*tchannel.Connection, error)
-	BeginCall(ctx context.Context, serviceName, methodName string, callOptions *CallOptions) (OutboundCall, error)
+	// BeginCall(ctx context.Context, serviceName, methodName string, callOptions *CallOptions) (OutboundCall, error)
 	// NumConnections() (inbound int, outbound int)
 	// NumPendingOutbound() int
+	Call(ctx context.Context, serviceName, methodName string, callOptions *CallOptions, arg, resp any) error
+	RawCall(ctx context.Context, serviceName, methodName string, callOptions *CallOptions, arg []byte, resp *[]byte) error
+}
+
+type ApplicationError interface {
+	error
+	Type() string
+	Message() string
 }
 
 // PeerList maintains a list of Peers.
@@ -241,38 +253,4 @@ type ContextWithHeaders interface {
 	// // Child creates a child context which stores headers separately from
 	// // the parent context.
 	// Child() ContextWithHeaders
-}
-
-// An OutboundCall is an active call to a remote peer.  A client makes a call
-// by calling BeginCall on the Channel, writing argument content via
-// ArgWriter2() ArgWriter3(), and then reading reading response data via the
-// ArgReader2() and ArgReader3() methods on the Response() object.
-type OutboundCall interface {
-	// // Response provides access to the call's response object, which can be used to
-	// // read response arguments
-	// Response() OutboundCallResponse
-	// // Arg2Writer returns a WriteCloser that can be used to write the second argument.
-	// // The returned writer must be closed once the write is complete.
-	// Arg2Writer() (ArgWriter, error)
-	// // Arg3Writer returns a WriteCloser that can be used to write the last argument.
-	// // The returned writer must be closed once the write is complete.
-	// Arg3Writer() (ArgWriter, error)
-	// // LocalPeer returns the local peer information for this call.
-	// LocalPeer() LocalPeerInfo
-	// // RemotePeer returns the remote peer information for this call.
-	// RemotePeer() PeerInfo
-}
-
-// An OutboundCallResponse is the response to an outbound call
-type OutboundCallResponse interface {
-	// ApplicationError returns true if the call resulted in an application level error
-	ApplicationError() bool
-	// // Format the format of the request from the ArgScheme transport header.
-	// Format() Format
-	// // Arg2Reader returns an ArgReader to read the second argument.
-	// // The ReadCloser must be closed once the argument has been read.
-	// Arg2Reader() (ArgReader, error)
-	// // Arg3Reader returns an ArgReader to read the last argument.
-	// // The ReadCloser must be closed once the argument has been read.
-	// Arg3Reader() (ArgReader, error)
 }

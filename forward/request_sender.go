@@ -21,7 +21,6 @@
 package forward
 
 import (
-	"encoding/json"
 	"errors"
 	"time"
 
@@ -30,7 +29,6 @@ import (
 	"github.com/temporalio/ringpop-go/events"
 	"github.com/temporalio/ringpop-go/logging"
 	"github.com/temporalio/ringpop-go/shared"
-	"github.com/temporalio/ringpop-go/tunnel"
 	log "github.com/uber-common/bark"
 )
 
@@ -162,51 +160,24 @@ func (s *requestSender) MakeCall(ctx context.Context, res *[]byte, fwdError *err
 
 		peer := s.channel.Peers().GetOrAdd(s.destination)
 
-		call, err := peer.BeginCall(ctx, s.service, s.endpoint, &shared.CallOptions{
-			Format: s.format,
-		})
+		err := peer.RawCall(ctx, s.service, s.endpoint, &shared.CallOptions{
+			RawHeaders: s.headers,
+			Format:     s.format,
+		}, s.request, res)
+
 		if err != nil {
-			*fwdError = err
-			done <- true
-			return
-		}
-
-		var arg3 []byte
-		headers := s.headers
-		if s.format == shared.Thrift {
-			if headers == nil {
-				headers = []byte{0, 0}
-			}
-			_, arg3, _, err = tunnel.RawWriteArgs(call, headers, s.request)
-		} else {
-			var resp shared.OutboundCallResponse
-			_, arg3, resp, err = tunnel.RawWriteArgs(call, headers, s.request)
-
 			// check if the response is an application level error
-			if err == nil && resp.ApplicationError() {
-				// parse the json from the application level error
-				errResp := struct {
-					Type    string `json:"type"`
-					Message string `json:"message"`
-				}{}
-
-				err = json.Unmarshal(arg3, &errResp)
-
-				// if parsing succeeded return the error as an application error
-				if err == nil {
-					*appError = errors.New(errResp.Message)
-					done <- true
-					return
-				}
+			var appErr shared.ApplicationError
+			if errors.As(err, &appErr) {
+				*appError = appErr
+				done <- true
+				return
 			}
-		}
-		if err != nil {
 			*fwdError = err
 			done <- true
 			return
 		}
 
-		*res = arg3
 		done <- true
 	}()
 
