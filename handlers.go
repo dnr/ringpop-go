@@ -21,6 +21,7 @@
 package ringpop
 
 import (
+	"github.com/temporalio/ringpop-go/shared"
 	"github.com/temporalio/ringpop-go/tunnel"
 	"github.com/temporalio/tchannel-go/json"
 	"golang.org/x/net/context"
@@ -43,7 +44,7 @@ func (rp *Ringpop) registerHandlers() error {
 	})
 }
 
-func (rp *Ringpop) health(ctx json.Context, req *Arg) (*Arg, error) {
+func (rp *Ringpop) health(ctx shared.ContextWithHeaders, req *Arg) (*Arg, error) {
 	return nil, nil
 }
 

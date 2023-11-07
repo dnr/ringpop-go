@@ -6,6 +6,12 @@ import (
 	"github.com/temporalio/ringpop-go/shared"
 )
 
+const (
+	// CurrentProtocolVersion is the current version of the TChannel protocol
+	// supported by this stack
+	CurrentProtocolVersion = 0x03
+)
+
 type (
 	tun struct {
 	}

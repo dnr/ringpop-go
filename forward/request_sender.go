@@ -31,7 +31,6 @@ import (
 	"github.com/temporalio/ringpop-go/logging"
 	"github.com/temporalio/ringpop-go/shared"
 	"github.com/temporalio/ringpop-go/tunnel"
-	"github.com/temporalio/tchannel-go/thrift"
 	log "github.com/uber-common/bark"
 )
 
@@ -60,7 +59,7 @@ type requestSender struct {
 	rerouteRetries      bool
 
 	headers []byte
-	ctx     thrift.Context
+	ctx     shared.ContextWithHeaders
 
 	startTime, retryStartTime time.Time
 

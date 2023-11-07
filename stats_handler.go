@@ -26,7 +26,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/temporalio/tchannel-go"
+	"github.com/temporalio/ringpop-go/tunnel"
 )
 
 func handleStats(rp *Ringpop) map[string]interface{} {
@@ -59,6 +59,6 @@ func handleStats(rp *Ringpop) map[string]interface{} {
 		"version":         "???", // TODO: version!
 		"timestamp":       time.Now().Unix(),
 		"uptime":          uptime,
-		"tchannelVersion": strconv.Itoa(tchannel.CurrentProtocolVersion), // get proper version
+		"tchannelVersion": strconv.Itoa(tunnel.CurrentProtocolVersion), // get proper version
 	}
 }

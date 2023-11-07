@@ -30,7 +30,6 @@ import (
 	"github.com/temporalio/ringpop-go/logging"
 	"github.com/temporalio/ringpop-go/shared"
 	"github.com/temporalio/ringpop-go/util"
-	"github.com/temporalio/tchannel-go/thrift"
 	log "github.com/uber-common/bark"
 )
 
@@ -46,7 +45,7 @@ type Sender interface {
 
 // Options for the creation of a forwarder
 type Options struct {
-	Ctx            thrift.Context
+	Ctx            shared.ContextWithHeaders
 	MaxRetries     int
 	RerouteRetries bool
 	RetrySchedule  []time.Duration
@@ -177,7 +176,7 @@ var (
 // The keys provided will be serialized as the value of the key and can be used
 // in the future to check if key inconsistencies are found while forwarding.
 // Currently this is not checked
-func SetForwardedHeader(ctx thrift.Context, keys []string) thrift.Context {
+func SetForwardedHeader(ctx shared.ContextWithHeaders, keys []string) shared.ContextWithHeaders {
 	// copy headers to make sure two calls do not leak headers to each other
 	headers := make(map[string]string, len(ctx.Headers())+1)
 	for key, value := range ctx.Headers() {
@@ -195,7 +194,7 @@ func SetForwardedHeader(ctx thrift.Context, keys []string) thrift.Context {
 	headers[ForwardedHeaderName] = keysString
 
 	// return the ctx with new headrs
-	return thrift.WithHeaders(ctx, headers)
+	return shared.WrapWithHeaders(ctx, headers)
 }
 
 // DeleteForwardedHeader takes the headers that came in via TChannel and looks
@@ -203,7 +202,7 @@ func SetForwardedHeader(ctx thrift.Context, keys []string) thrift.Context {
 // forwarded the message. If the header is present it will delete the header
 // from the context. The return value indicates if the header was present and
 // deleted
-func DeleteForwardedHeader(ctx thrift.Context) bool {
+func DeleteForwardedHeader(ctx shared.ContextWithHeaders) bool {
 	_, ok := ctx.Headers()[ForwardedHeaderName]
 	if ok {
 		delete(ctx.Headers(), ForwardedHeaderName)

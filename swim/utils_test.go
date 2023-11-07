@@ -35,7 +35,6 @@ import (
 	"github.com/temporalio/ringpop-go/shared"
 	"github.com/temporalio/ringpop-go/tunnel"
 	"github.com/temporalio/ringpop-go/util"
-	"github.com/temporalio/tchannel-go"
 )
 
 var testNow = time.Now()
@@ -84,11 +83,12 @@ func (n *testNode) closeAndWait(sender shared.TChannel) {
 			continue
 		}
 
-		_, ok := err.(tchannel.SystemError)
-		if ok {
-			cancel()
-			continue
-		}
+		// FIXME
+		// _, ok := err.(tchannel.SystemError)
+		// if ok {
+		// 	cancel()
+		// 	continue
+		// }
 
 		cancel()
 		break
