@@ -3,7 +3,6 @@ module github.com/temporalio/ringpop-go
 go 1.19
 
 require (
-	github.com/apache/thrift v0.16.0
 	github.com/benbjohnson/clock v0.0.0-20160125162948-a620c1cc9866
 	github.com/cactus/go-statsd-client/statsd v0.0.0-20200423205355-cb0885a1018c
 	github.com/dgryski/go-farm v0.0.0-20140601200337-fc41e106ee0e

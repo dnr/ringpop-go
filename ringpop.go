@@ -24,8 +24,6 @@
 package ringpop
 
 import (
-	"bytes"
-	"context"
 	"errors"
 	"fmt"
 	"sync"
@@ -39,7 +37,6 @@ import (
 	"github.com/temporalio/ringpop-go/shared"
 	"github.com/temporalio/ringpop-go/swim"
 
-	athrift "github.com/apache/thrift/lib/go/thrift"
 	"github.com/benbjohnson/clock"
 	"github.com/dgryski/go-farm"
 	log "github.com/uber-common/bark"
@@ -814,33 +811,4 @@ func (rp *Ringpop) Labels() (*swim.NodeLabels, error) {
 	}
 
 	return rp.node.Labels(), nil
-}
-
-// SerializeThrift takes a thrift struct and returns the serialized bytes
-// of that struct using the thrift binary protocol. This is a temporary
-// measure before frames can forwarded directly past the endpoint to the proper
-// destinaiton.
-func SerializeThrift(ctx context.Context, s athrift.TStruct) ([]byte, error) {
-	var b []byte
-	var buffer = bytes.NewBuffer(b)
-
-	transport := athrift.NewStreamTransportW(buffer)
-	if err := s.Write(ctx, athrift.NewTBinaryProtocolTransport(transport)); err != nil {
-		return nil, err
-	}
-
-	if err := transport.Flush(ctx); err != nil {
-		return nil, err
-	}
-	return buffer.Bytes(), nil
-}
-
-// DeserializeThrift takes a byte slice and attempts to write it into the
-// given thrift struct using the thrift binary protocol. This is a temporary
-// measure before frames can forwarded directly past the endpoint to the proper
-// destinaiton.
-func DeserializeThrift(ctx context.Context, b []byte, s athrift.TStruct) error {
-	reader := bytes.NewReader(b)
-	transport := athrift.NewStreamTransportR(reader)
-	return s.Read(ctx, athrift.NewTBinaryProtocolTransport(transport))
 }
