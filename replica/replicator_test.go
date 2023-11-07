@@ -25,11 +25,12 @@ import (
 	"testing"
 	"time"
 
+	"context"
+
 	"github.com/stretchr/testify/suite"
 	"github.com/temporalio/ringpop-go/forward"
 	"github.com/temporalio/ringpop-go/shared"
 	"github.com/temporalio/ringpop-go/tunnel"
-	"golang.org/x/net/context"
 )
 
 var foptsTimeout = &forward.Options{

@@ -25,7 +25,7 @@ import (
 	"errors"
 	"time"
 
-	"golang.org/x/net/context"
+	"context"
 
 	"github.com/temporalio/ringpop-go/events"
 	"github.com/temporalio/ringpop-go/logging"

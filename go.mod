@@ -10,7 +10,6 @@ require (
 	github.com/sirupsen/logrus v1.0.2-0.20170726183946-abee6f9b0679
 	github.com/stretchr/testify v1.7.0
 	github.com/uber-common/bark v1.0.0
-	golang.org/x/net v0.10.0
 )
 
 require (

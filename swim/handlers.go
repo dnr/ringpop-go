@@ -23,10 +23,11 @@ package swim
 import (
 	"errors"
 
+	"context"
+
 	"github.com/temporalio/ringpop-go/shared"
 	"github.com/temporalio/ringpop-go/tunnel"
 	log "github.com/uber-common/bark"
-	"golang.org/x/net/context"
 )
 
 // emptyArg is a blank arguments used as filler for making TChannel calls that

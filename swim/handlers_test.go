@@ -25,7 +25,7 @@ import (
 	"testing"
 	"time"
 
-	"golang.org/x/net/context"
+	"context"
 
 	"github.com/benbjohnson/clock"
 	"github.com/stretchr/testify/mock"

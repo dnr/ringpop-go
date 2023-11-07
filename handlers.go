@@ -21,9 +21,10 @@
 package ringpop
 
 import (
+	"context"
+
 	"github.com/temporalio/ringpop-go/shared"
 	"github.com/temporalio/ringpop-go/tunnel"
-	"golang.org/x/net/context"
 )
 
 // TODO: EVERYTHING!
