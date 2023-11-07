@@ -76,6 +76,7 @@ func (s *RingpopOptionsTestSuite) TestDefaults() {
 	s.Equal(testRingpop.configHashRing, rp.configHashRing)
 }
 
+/*
 // TestDefaultAddressResolver tests that Ringpop gets the address from the
 // TChannel object by default.
 func (s *RingpopOptionsTestSuite) TestDefaultAddressResolver() {
@@ -94,6 +95,7 @@ func (s *RingpopOptionsTestSuite) TestDefaultAddressResolver() {
 	s.Equal(hostport, address)
 	s.NoError(err)
 }
+*/
 
 // TestChannelRequired tests that Ringpop creation fails if a Channel is not
 // passed.

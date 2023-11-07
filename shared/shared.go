@@ -12,6 +12,7 @@ type (
 
 var contextKeyHeaders = contextKeyHeadersType{}
 
+// FIXME
 // var retryOptions = &tchannel.RetryOptions{
 // 	RetryOn: tchannel.RetryNever,
 // }
@@ -19,11 +20,8 @@ var contextKeyHeaders = contextKeyHeadersType{}
 // NewTChannelContext creates a new TChannel context with default options
 // suitable for use in Ringpop.
 func NewTChannelContext(timeout time.Duration) (ContextWithHeaders, context.CancelFunc) {
-	panic("unimpl")
-	// return tchannel.NewContextBuilder(timeout).
-	// 	DisableTracing().
-	// 	SetRetryOptions(retryOptions).
-	// 	Build()
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	return WrapContext(ctx), cancel
 }
 
 type headerCtx struct {
@@ -81,7 +79,13 @@ func (c headerCtx) Child() ContextWithHeaders {
 // WrapContext wraps an existing context.Context into a ContextWithHeaders.
 // If the underlying context has headers, they are preserved.
 func WrapContext(ctx context.Context) ContextWithHeaders {
-	panic("unimpl")
+	hctx := headerCtx{Context: ctx}
+	if h := hctx.headers(); h != nil {
+		return hctx
+	}
+
+	// If there is no header container, we should create an empty one.
+	return WrapWithHeaders(ctx, nil)
 }
 
 // WrapWithHeaders returns a Context that can be used to make a call with request headers.

@@ -185,7 +185,7 @@ func (rp *Ringpop) init() error {
 	rp.stats.prefix = fmt.Sprintf("ringpop.%s", rp.stats.hostport)
 	rp.stats.keys = make(map[string]string)
 
-	rp.subChannel = rp.channel.GetSubChannel("ringpop", shared.Isolated)
+	rp.subChannel = rp.channel.GetSubChannel("ringpop")
 	rp.registerHandlers()
 
 	rp.node = swim.NewNode(rp.config.App, address, rp.subChannel, &swim.Options{

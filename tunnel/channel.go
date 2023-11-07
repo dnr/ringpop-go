@@ -23,11 +23,11 @@ type (
 var _ shared.TChannel = (*tun)(nil)
 var _ shared.SubChannel = (*sub)(nil)
 
-func NewChannel(serviceName string, opts any /*FIXME*/) (*tun, error) {
+func NewChannel(serviceName string, opts any) (*tun, error) {
 	panic("unimpl")
 }
 
-func (t *tun) GetSubChannel(fixme string, opts ...shared.SubChannelOption) shared.SubChannel {
+func (t *tun) GetSubChannel(fixme string) shared.SubChannel {
 	panic("unimpl")
 }
 
@@ -35,10 +35,12 @@ func (t *tun) PeerInfo() shared.LocalPeerInfo {
 	panic("unimpl")
 }
 
-func (t *tun) ListenAndServe(fixme string) error {
+// test only
+func (t *tun) ListenAndServe(hostport string) error {
 	panic("unimpl")
 }
 
+// test only
 func (t *tun) Ping(context.Context, string) error {
 	panic("unimpl")
 }
@@ -56,20 +58,20 @@ func (s *sub) Register(h shared.Handler, methodName string) {
 	panic("unimpl")
 }
 
-// Logger returns the logger for this Registrar.
-func (s *sub) Logger() shared.Logger {
-	panic("unimpl")
-}
+// // Logger returns the logger for this Registrar.
+// func (s *sub) Logger() shared.Logger {
+// 	panic("unimpl")
+// }
 
-// StatsReporter returns the stats reporter for this Registrar
-func (s *sub) StatsReporter() shared.StatsReporter {
-	panic("unimpl")
-}
+// // StatsReporter returns the stats reporter for this Registrar
+// func (s *sub) StatsReporter() shared.StatsReporter {
+// 	panic("unimpl")
+// }
 
-// StatsTags returns the tags that should be used.
-func (s *sub) StatsTags() map[string]string {
-	panic("unimpl")
-}
+// // StatsTags returns the tags that should be used.
+// func (s *sub) StatsTags() map[string]string {
+// 	panic("unimpl")
+// }
 
 // Peers returns the peer list for this Registrar.
 func (s *sub) Peers() shared.PeerList {
